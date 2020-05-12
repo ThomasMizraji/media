@@ -1,0 +1,8 @@
+---
+# Media VM Specific information
+
+ansible_user: ansible
+
+hostname:
+    name: media
+    

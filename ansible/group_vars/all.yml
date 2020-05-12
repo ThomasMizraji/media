@@ -1,0 +1,5 @@
+---
+# Default connectivity variables
+ansible_user: ansible
+
+# Global config variables
