@@ -8,6 +8,6 @@ crash.log
 *.box
 
 # For real files
+ansible/hosts
 *.sh
 id_rsa_ansible*
-

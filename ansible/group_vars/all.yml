@@ -3,3 +3,4 @@
 ansible_user: ansible
 
 # Global config variables
+ansible_ssh_private_key_file: "{{ inventory_dir }}/id_rsa_ansible"

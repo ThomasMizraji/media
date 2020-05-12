@@ -1,0 +1,4 @@
+all:
+  hosts:
+    media:
+      ansible_host: ip_media

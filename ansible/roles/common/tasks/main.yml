@@ -1,4 +1,4 @@
 ---
 # tasks file for common
-- include: upgrade.yml
+#- include: upgrade.yml
 - include: set_hostname.yml
