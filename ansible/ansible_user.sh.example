@@ -1,0 +1,47 @@
+#!/bin/bash
+# setup-ansible-user
+# create ansible user for Ansible automation
+# and configuration management
+# create ansible user
+# run from the controller node
+# ssh root@172.20.4.121 'bash -s' < setup_ansible_user.sh
+
+getentUser=$(/usr/bin/getent passwd ansible)
+if [ -z "$getentUser" ]
+then
+  echo "User ansible does not exist.  Will Add..."
+  /usr/sbin/groupadd -g 2002 ansible
+  /usr/sbin/useradd -u 2002 -g 2002 -c "Ansible Automation Account" -s /bin/bash -m -d /home/ansible ansible
+  mkdir -p /home/ansible/.ssh
+  /usr/bin/passwd -d ansible
+fi
+
+# setup ssh authorization keys for Ansible access 
+echo "setting up ssh authorization keys..."
+cat >> /home/ansible/.ssh/authorized_keys << EOF
+ssh-rsa public_key_here ansible@ansible
+EOF
+
+chown -R ansible:ansible /home/ansible/.ssh
+chmod 700 /home/ansible/.ssh
+# setup sudo access for Ansible
+if [ ! -s /etc/sudoers.d/ansible ]
+then
+echo "User ansible sudoers does not exist.  Will Add..."
+cat >> /etc/sudoers.d/ansible << EOF
+ansible ALL=(ALL) NOPASSWD: ALL
+EOF
+chmod 400 /etc/sudoers.d/ansible
+fi
+
+# disable login for ansible except through ssh keys
+
+cat >> /etc/ssh/sshd_config << EOF
+Match User ansible
+        PasswordAuthentication no
+        AuthenticationMethods publickey
+EOF
+
+# restart sshd
+systemctl restart sshd
+# end of script
