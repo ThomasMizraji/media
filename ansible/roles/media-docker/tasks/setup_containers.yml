@@ -1,0 +1,160 @@
+---
+- name: Launch Portainer container
+  docker_container:
+    name: portainer
+    image: portainer/portainer
+    restart: yes
+    command: -H unix:///var/run/docker.sock
+    ports:
+      - "{{ docker_ports['portainer'] }}:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "/home/{{ docker_user_name }}/docker/portainer/data:/data"
+      - "/home/{{ docker_user_name }}/docker/shared:/shared"
+    env:
+      TZ: ${TZ}
+
+- name: Launch Organizr container
+  docker_container:
+    name: organizr
+    image: lsiocommunity/organizr
+    restart: yes
+    ports:
+      - "{{ docker_ports['organizr'] }}:80"
+    volumes:
+      - "/home/{{ docker_user_name }}/docker/organizr:/config"
+      - "/home/{{ docker_user_name }}/docker/shared:/shared"
+    env:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+
+- name: Launch Transmission container
+  docker_container:
+    name: transmission
+    image: linuxserver/transmission
+    restart: yes
+    ports:
+      - "{{ docker_ports['transmission'] }}:9091"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - "/home/{{ docker_user_name }}/docker/shared:/shared"
+      - "/home/{{ docker_user_name }}/Downloads:/data/watch"
+      - "/home/{{ docker_user_name }}/Downloads/completed:/data/completed"
+      - "/home/{{ docker_user_name }}/Downloads/incomplete:/data/incomplete"
+    env:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+
+- name: Launch Radarr container
+  docker_container:
+    name: radarr
+    image: linuxserver/radarr
+    restart: yes
+    ports:
+      - "{{ docker_ports['radarr'] }}:7878"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - "/home/{{ docker_user_name }}/docker/shared:/shared"
+      - "/home/{{ docker_user_name }}/docker/radarr:/config"
+      - "/home/{{ docker_user_name }}/Downloads/completed:/downloads"
+      - "/home/{{ docker_user_name }}/media/movies:/movies"
+    env:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+
+- name: Launch Sonarr container
+  docker_container:
+    name: sonarr
+    image: linuxserver/sonarr
+    restart: yes
+    ports:
+      - "{{ docker_ports['sonarr'] }}:8989"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - "/home/{{ docker_user_name }}/docker/shared:/shared"
+      - "/home/{{ docker_user_name }}/docker/sonarr:/config"
+      - "/home/{{ docker_user_name }}/Downloads/completed:/downloads"
+      - "/home/{{ docker_user_name }}/media/tvshows:/tv"
+    env:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+
+  
+- name: Launch Plex container
+  docker_container:
+    name: plexms
+    image: plexinc/pms-docker
+    restart: yes
+    ports:
+      - "32400:32400/tcp"
+      - "3005:3005/tcp"
+      - "8324:8324/tcp"
+      - "32469:32469/tcp"
+      - "1900:1900/udp"
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
+    volumes:
+      - "/home/{{ docker_user_name }}/docker/shared:/shared"
+      - "/home/{{ docker_user_name }}/docker/plexms:/config"
+      - "/home/{{ docker_user_name }}/Downloads/plex_tmp:/transcode"
+      - /media/media:/media
+    env:
+      TZ: ${TZ}
+      HOSTNAME: "Docker Plex"
+      PLEX_CLAIM: "claim-BHwGhRmbDZLdtZihz7xX"
+      PLEX_UID: ${PUID}
+      PLEX_GID: ${PGID}
+      ADVERTISE_IP: "http://{{ ansible_host }}:32400/"
+
+- name: Launch Ombi container
+  docker_container:
+    name: ombi
+    image: linuxserver/ombi
+    restart: yes
+    ports:
+      - "{{ docker_ports['ombi'] }}:3579"
+    volumes:
+      - "/home/{{ docker_user_name }}/docker/shared:/shared"
+      - "/home/{{ docker_user_name }}/docker/ombi:/config"
+    env:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+
+- name: Launch Jackett container
+  docker_container:
+    name: jackett
+    image: linuxserver/jackett
+    restart: yes
+    ports:
+      - "{{ docker_ports['jackett'] }}:9117"
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/home/{{ docker_user_name }}/docker/shared:/shared"
+      - "/home/{{ docker_user_name }}/Downloads/completed:/downloads"
+      - "/home/{{ docker_user_name }}/docker/jackett:/config"
+    env:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
+
+- name: Launch MariaDB container
+  docker_container:
+    name: mariadb
+    image: linuxserver/mariadb
+    restart: yes
+    ports:
+      - "{{ docker_ports['mariadb'] }}:3306"
+    volumes:
+      - "/home/{{ docker_user_name }}/docker/mariadb:/config"
+    env:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}

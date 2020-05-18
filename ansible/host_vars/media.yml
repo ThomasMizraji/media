@@ -6,4 +6,20 @@ ansible_ssh_private_key_file: "{{ inventory_dir }}/id_rsa_ansible"
 
 hostname:
     name: media
-    
+
+docker_user_name: docker
+docker_user_group: docker
+docker_timezone: Europe/Zurich
+docker_puid: 2005
+docker_pgid: 100
+mysql_root_password: Pass.123
+
+docker_ports:
+    portainer: 9000
+    organizr: 80
+    transmission: 9091
+    radarr: 7878
+    sonarr: 8989
+    ombi: 3579
+    jackett: 9117
+    mariadb: 3306

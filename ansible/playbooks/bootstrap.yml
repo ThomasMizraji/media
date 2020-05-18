@@ -1,0 +1,65 @@
+---
+# Run ansible-playbook bootstrap.yml -k -i 192.168.50.121,
+- name: Bootstrap server for future ansible runs
+  hosts: all
+  remote_user: root
+  
+  vars: 
+    user_name: tmi
+    user_pass: $6$GeQe3YY.FVLvB6EA$pm2PS59VAet/ZPLlRwHZY4NmZy0ww/rE7593C571HY0xu2REMQze/G2yL/TnTBUGGotjZeWzPmNGTiP7ckfuw1
+    automation_user_name: deploy
+    automation_user_public_key: certificates/id_rsa_ansible.pub
+
+  tasks: 
+
+  - name: Make sure 'wheel' group exists
+    group:
+      name: wheel
+      state: present
+  
+  - name: Allow passwordless sudo for 'wheel' group 
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: '^%wheel'
+      line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+      validate: 'visudo -cf %s'
+
+  - name: Add {{ user_name }} user
+    user: >
+      name={{ user_name }}
+      password={{ user_pass }}
+      shell=/bin/bash
+      groups=wheel
+      append=yes
+      generate_ssh_key=yes
+      ssh_key_bits=2048
+      state=present
+
+  - name: Add {{ automation_user_name }} user
+    user: >
+      name={{ automation_user_name }}
+      shell=/bin/bash
+      groups=wheel
+      append=yes
+      state=present
+
+  - name: Set up authorized keys for the {{ automation_user_name }} user
+    authorized_key: user="{{ automation_user_name }}" key="{{ item }}"
+    with_file:
+      - "{{ automation_user_public_key }}"
+
+  - name: Remove root SSH access
+    lineinfile: 
+      dest: /etc/ssh/sshd_config 
+      regexp: "^PermitRootLogin" 
+      line: "PermitRootLogin no" 
+      state: present
+    notify: 
+        - restart ssh
+
+  handlers:
+  - name: restart ssh
+    service:
+        name: sshd
+        state: restarted

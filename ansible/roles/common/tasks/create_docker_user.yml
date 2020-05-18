@@ -1,0 +1,17 @@
+---
+- name: Add {{ docker_user_name }} user
+  user: >
+    name={{ docker_user_name }}
+    shell=/usr/sbin/nologin
+    append=yes
+    state=present
+
+- name: Set {{ docker_user_name }} home ACL
+  acl:
+    path: "/home/{{ docker_user_name }}"
+    entity: "{{ docker_user_group }}"
+    etype: group
+    permissions: rwx
+    recursive: yes
+    default: yes
+    state: present

@@ -1,0 +1,3 @@
+---
+# tasks file for media-docker
+- include: setup_containers.yml

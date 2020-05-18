@@ -2,3 +2,5 @@
 # tasks file for common
 #- include: upgrade.yml
 - include: set_hostname.yml
+- include: create_docker_user.yml
+- include: install_packages.yml

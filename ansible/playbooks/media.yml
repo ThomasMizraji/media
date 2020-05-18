@@ -5,4 +5,6 @@
   roles:
     - common
     - docker
+    - role: media-docker
+      tags: media-docker
     

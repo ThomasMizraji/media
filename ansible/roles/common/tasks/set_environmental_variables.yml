@@ -1,0 +1,7 @@
+---
+- name: Set environmental variables
+  template:
+    src: ../files/environment.j2
+    dest: /etc/environment
+    owner: root
+    group: root
