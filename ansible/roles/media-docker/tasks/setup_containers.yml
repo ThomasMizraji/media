@@ -40,8 +40,8 @@
       - /etc/localtime:/etc/localtime:ro
       - "/home/{{ docker_user_name }}/docker/shared:/shared"
       - "/home/{{ docker_user_name }}/Downloads:/data/watch"
-      - "/home/{{ docker_user_name }}/Downloads/completed:/data/completed"
-      - "/home/{{ docker_user_name }}/Downloads/incomplete:/data/incomplete"
+      - "/home/{{ docker_user_name }}/Downloads/completed:/downloads/complete"
+      - "/home/{{ docker_user_name }}/Downloads/incomplete:/downloads/incomplete"
     env:
       PUID: '{{ docker_puid | string }}'
       PGID: '{{ docker_pgid | string }}'
@@ -76,14 +76,13 @@
       - /etc/localtime:/etc/localtime:ro
       - "/home/{{ docker_user_name }}/docker/shared:/shared"
       - "/home/{{ docker_user_name }}/docker/sonarr:/config"
-      - "/home/{{ docker_user_name }}/Downloads/completed:/downloads"
+      - "/home/{{ docker_user_name }}/Downloads/completed:/downloads/complete"
       - "/home/{{ docker_user_name }}/media/tvshows:/tv"
     env:
       PUID: '{{ docker_puid | string }}'
       PGID: '{{ docker_pgid | string }}'
       TZ: "{{ docker_timezone }}"
 
-  
 - name: Launch Plex container
   docker_container:
     name: plexms
@@ -103,7 +102,7 @@
       - "/home/{{ docker_user_name }}/docker/shared:/shared"
       - "/home/{{ docker_user_name }}/docker/plexms:/config"
       - "/home/{{ docker_user_name }}/Downloads/plex_tmp:/transcode"
-      - /media/media:/media
+      - "/home/{{ docker_user_name }}/media:/media"
     env:
       TZ: "{{ docker_timezone }}"
       HOSTNAME: "Docker Plex"
@@ -158,3 +157,11 @@
       PUID: '{{ docker_puid | string }}'
       PGID: '{{ docker_pgid | string }}'
       TZ: "{{ docker_timezone }}"
+
+- name: Launch Watchtower container
+  docker_container:
+    name: watchtower
+    image: v2tec/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --schedule "0 0 4 * * *" --cleanup

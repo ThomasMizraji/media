@@ -15,3 +15,10 @@
     recursive: yes
     default: yes
     state: present
+
+- name: Set {{ docker_user_name }} home permissions
+  file:
+    path: "/home/{{ docker_user_name }}"
+    state: directory
+    recurse: yes
+    mode: '0775'
