@@ -12,7 +12,7 @@
       - "/home/{{ docker_user_name }}/docker/portainer/data:/data"
       - "/home/{{ docker_user_name }}/docker/shared:/shared"
     env:
-      TZ: ${TZ}
+      TZ: "{{ docker_timezone }}"
 
 - name: Launch Organizr container
   docker_container:
@@ -25,9 +25,9 @@
       - "/home/{{ docker_user_name }}/docker/organizr:/config"
       - "/home/{{ docker_user_name }}/docker/shared:/shared"
     env:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
+      PUID: '{{ docker_puid | string }}'
+      PGID: '{{ docker_pgid | string }}'
+      TZ: "{{ docker_timezone }}"
 
 - name: Launch Transmission container
   docker_container:
@@ -43,9 +43,9 @@
       - "/home/{{ docker_user_name }}/Downloads/completed:/data/completed"
       - "/home/{{ docker_user_name }}/Downloads/incomplete:/data/incomplete"
     env:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
+      PUID: '{{ docker_puid | string }}'
+      PGID: '{{ docker_pgid | string }}'
+      TZ: "{{ docker_timezone }}"
 
 - name: Launch Radarr container
   docker_container:
@@ -61,9 +61,9 @@
       - "/home/{{ docker_user_name }}/Downloads/completed:/downloads"
       - "/home/{{ docker_user_name }}/media/movies:/movies"
     env:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
+      PUID: '{{ docker_puid | string }}'
+      PGID: '{{ docker_pgid | string }}'
+      TZ: "{{ docker_timezone }}"
 
 - name: Launch Sonarr container
   docker_container:
@@ -79,9 +79,9 @@
       - "/home/{{ docker_user_name }}/Downloads/completed:/downloads"
       - "/home/{{ docker_user_name }}/media/tvshows:/tv"
     env:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
+      PUID: '{{ docker_puid | string }}'
+      PGID: '{{ docker_pgid | string }}'
+      TZ: "{{ docker_timezone }}"
 
   
 - name: Launch Plex container
@@ -105,11 +105,11 @@
       - "/home/{{ docker_user_name }}/Downloads/plex_tmp:/transcode"
       - /media/media:/media
     env:
-      TZ: ${TZ}
+      TZ: "{{ docker_timezone }}"
       HOSTNAME: "Docker Plex"
       PLEX_CLAIM: "claim-BHwGhRmbDZLdtZihz7xX"
-      PLEX_UID: ${PUID}
-      PLEX_GID: ${PGID}
+      PLEX_UID: '{{ docker_puid | string }}'
+      PLEX_GID: '{{ docker_pgid | string }}'
       ADVERTISE_IP: "http://{{ ansible_host }}:32400/"
 
 - name: Launch Ombi container
@@ -123,9 +123,9 @@
       - "/home/{{ docker_user_name }}/docker/shared:/shared"
       - "/home/{{ docker_user_name }}/docker/ombi:/config"
     env:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
+      PUID: '{{ docker_puid | string }}'
+      PGID: '{{ docker_pgid | string }}'
+      TZ: "{{ docker_timezone }}"
 
 - name: Launch Jackett container
   docker_container:
@@ -140,9 +140,9 @@
       - "/home/{{ docker_user_name }}/Downloads/completed:/downloads"
       - "/home/{{ docker_user_name }}/docker/jackett:/config"
     env:
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
+      PUID: '{{ docker_puid | string }}'
+      PGID: '{{ docker_pgid | string }}'
+      TZ: "{{ docker_timezone }}"
 
 - name: Launch MariaDB container
   docker_container:
@@ -154,7 +154,7 @@
     volumes:
       - "/home/{{ docker_user_name }}/docker/mariadb:/config"
     env:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      PUID: ${PUID}
-      PGID: ${PGID}
-      TZ: ${TZ}
+      MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
+      PUID: '{{ docker_puid | string }}'
+      PGID: '{{ docker_pgid | string }}'
+      TZ: "{{ docker_timezone }}"
