@@ -22,4 +22,5 @@ docker_ports:
     sonarr: 8989
     ombi: 3579
     jackett: 9117
+    phpmyadmin: 8080
     mariadb: 3306
