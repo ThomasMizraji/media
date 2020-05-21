@@ -58,7 +58,7 @@
       - /etc/localtime:/etc/localtime:ro
       - "/home/{{ docker_user_name }}/docker/shared:/shared"
       - "/home/{{ docker_user_name }}/docker/radarr:/config"
-      - "/home/{{ docker_user_name }}/Downloads/completed:/downloads"
+      - "/home/{{ docker_user_name }}/Downloads/completed:/downloads/complete"
       - "/home/{{ docker_user_name }}/media/movies:/movies"
     env:
       PUID: '{{ docker_puid | string }}'
@@ -143,10 +143,27 @@
       PGID: '{{ docker_pgid | string }}'
       TZ: "{{ docker_timezone }}"
 
+- name: Launch phpMyAdmin container
+  docker_container:
+    name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    hostname: phpmyadmin
+    restart: yes
+    links:
+      - mariadb:db
+    ports:
+      - "{{ docker_ports['phpmyadmin'] }}:80"
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
+      PMA_HOST: mariadb
+  tags:
+    - phpmyadmin
+
 - name: Launch MariaDB container
   docker_container:
     name: mariadb
     image: linuxserver/mariadb
+    hostname: mariadb
     restart: yes
     ports:
       - "{{ docker_ports['mariadb'] }}:3306"
@@ -157,7 +174,9 @@
       PUID: '{{ docker_puid | string }}'
       PGID: '{{ docker_pgid | string }}'
       TZ: "{{ docker_timezone }}"
-
+  tags:
+    - phpmyadmin
+    
 - name: Launch Watchtower container
   docker_container:
     name: watchtower
