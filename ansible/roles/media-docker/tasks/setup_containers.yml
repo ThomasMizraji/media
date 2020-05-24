@@ -4,6 +4,7 @@
     name: portainer
     image: portainer/portainer
     restart: yes
+    restart_policy: always
     command: -H unix:///var/run/docker.sock
     ports:
       - "{{ docker_ports['portainer'] }}:9000"
@@ -19,6 +20,7 @@
     name: organizr
     image: lsiocommunity/organizr
     restart: yes
+    restart_policy: always
     ports:
       - "{{ docker_ports['organizr'] }}:80"
     volumes:
@@ -34,6 +36,7 @@
     name: transmission
     image: linuxserver/transmission
     restart: yes
+    restart_policy: always
     ports:
       - "{{ docker_ports['transmission'] }}:9091"
     volumes:
@@ -46,12 +49,17 @@
       PUID: '{{ docker_puid | string }}'
       PGID: '{{ docker_pgid | string }}'
       TZ: "{{ docker_timezone }}"
+      USER: "{{ transmission['user'] }}"
+      PASS: "{{ transmission['pass'] }}"
+  tags:
+    - transmission
 
 - name: Launch Radarr container
   docker_container:
     name: radarr
     image: linuxserver/radarr
     restart: yes
+    restart_policy: always
     ports:
       - "{{ docker_ports['radarr'] }}:7878"
     volumes:
@@ -70,6 +78,7 @@
     name: sonarr
     image: linuxserver/sonarr
     restart: yes
+    restart_policy: always
     ports:
       - "{{ docker_ports['sonarr'] }}:8989"
     volumes:
@@ -88,8 +97,9 @@
     name: plexms
     image: plexinc/pms-docker
     restart: yes
+    restart_policy: always
     ports:
-      - "32400:32400/tcp"
+      - "{{ docker_ports['plex'] }}:32400/tcp"
       - "3005:3005/tcp"
       - "8324:8324/tcp"
       - "32469:32469/tcp"
@@ -106,16 +116,19 @@
     env:
       TZ: "{{ docker_timezone }}"
       HOSTNAME: "Docker Plex"
-      PLEX_CLAIM: "claim-BHwGhRmbDZLdtZihz7xX"
+      PLEX_CLAIM: "{{ plex['claim'] }}"
       PLEX_UID: '{{ docker_puid | string }}'
       PLEX_GID: '{{ docker_pgid | string }}'
-      ADVERTISE_IP: "http://{{ ansible_host }}:32400/"
+      ADVERTISE_IP: "http://{{ ansible_host }}:{{ docker_ports['plex'] }}/"
+  tags:
+    - plex
 
 - name: Launch Ombi container
   docker_container:
     name: ombi
     image: linuxserver/ombi
     restart: yes
+    restart_policy: always
     ports:
       - "{{ docker_ports['ombi'] }}:3579"
     volumes:
@@ -131,6 +144,7 @@
     name: jackett
     image: linuxserver/jackett
     restart: yes
+    restart_policy: always
     ports:
       - "{{ docker_ports['jackett'] }}:9117"
     volumes:
@@ -143,44 +157,48 @@
       PGID: '{{ docker_pgid | string }}'
       TZ: "{{ docker_timezone }}"
 
-- name: Launch phpMyAdmin container
-  docker_container:
-    name: phpmyadmin
-    image: phpmyadmin/phpmyadmin
-    hostname: phpmyadmin
-    restart: yes
-    links:
-      - mariadb:db
-    ports:
-      - "{{ docker_ports['phpmyadmin'] }}:80"
-    env:
-      MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
-      PMA_HOST: mariadb
-  tags:
-    - phpmyadmin
-
 - name: Launch MariaDB container
   docker_container:
     name: mariadb
     image: linuxserver/mariadb
     hostname: mariadb
     restart: yes
+    restart_policy: always
     ports:
       - "{{ docker_ports['mariadb'] }}:3306"
     volumes:
       - "/home/{{ docker_user_name }}/docker/mariadb:/config"
     env:
-      MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
+      MYSQL_ROOT_PASSWORD: "{{ mysql['root_password'] }}"
       PUID: '{{ docker_puid | string }}'
       PGID: '{{ docker_pgid | string }}'
       TZ: "{{ docker_timezone }}"
   tags:
+    - mariadb
+
+- name: Launch phpMyAdmin container
+  docker_container:
+    name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    hostname: phpmyadmin
+    restart: yes
+    restart_policy: always
+    links:
+      - mariadb:db
+    ports:
+      - "{{ docker_ports['phpmyadmin'] }}:80"
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ mysql['root_password'] }}"
+      PMA_HOST: mariadb
+  tags:
     - phpmyadmin
-    
+
 - name: Launch Watchtower container
   docker_container:
     name: watchtower
     image: v2tec/watchtower
+    restart: yes
+    restart_policy: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --schedule "0 0 4 * * *" --cleanup
